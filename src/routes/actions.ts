@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync, onRequestHookHandler } from "fastify";
+import { analyticsResponse } from "../services/actionAnalytics.js";
 import { ConfigError } from "../lib/errors.js";
 import type { ConnectionService } from "../services/connectionService.js";
 
@@ -167,37 +168,6 @@ function actionOpenApi(baseUrl: string, accountAliases: Record<string, string>) 
         },
       ]),
     ),
-  };
-}
-
-async function analyticsResponse(
-  connectionService: ConnectionService,
-  account: string,
-  days: number,
-) {
-  const accountHistory = await connectionService.accountAnalytics(account, days);
-  const posts = await connectionService.posts(account, days);
-  const summary7d = await connectionService.summary(account, 7);
-  const summary30d = await connectionService.summary(account, 30);
-  const current = accountHistory.current;
-  const { account: _summary7dAccount, ...safeSummary7d } = summary7d;
-  const { account: _summary30dAccount, ...safeSummary30d } = summary30d;
-
-  return {
-    account: {
-      id: accountHistory.account.x_account_id,
-      handle: accountHistory.account.username,
-      display_name: accountHistory.account.display_name,
-      followers: current?.followers ?? null,
-      following: current?.following ?? null,
-      total_posts: current?.total_posts ?? null,
-      current_timestamp: current?.captured_at ?? null,
-    },
-    analytics_history: accountHistory.history,
-    posts: posts.posts,
-    summary_7d: safeSummary7d,
-    summary_30d: safeSummary30d,
-    generated_at: new Date().toISOString(),
   };
 }
 

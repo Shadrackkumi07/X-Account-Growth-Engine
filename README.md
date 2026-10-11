@@ -257,6 +257,14 @@ Try this first prompt:
 Analyze the last 30 days for every connected account. What is working, what is underperforming, and what two posts should each account publish today?
 ```
 
+## MCP for the migrated plugin
+
+The existing backend also exposes authenticated, read-only analytics through **`https://apx.serionflow.com/mcp`** after deploying this version. It provides `get_bloomquest_analytics` and `get_serionflow_analytics`, each bound to its company’s immutable X account ID. Both accept `days` from 1–3650 (default 30).
+
+It reuses the existing `CHATGPT_ACTION_API_KEY`, account connections, X OAuth, and analytics services. No new server environment variables are required. Use the private packaged plugin’s API-key/Bearer connection setup; do not put the key in plugin files.
+
+See [MCP deployment, authentication, plugin configuration, and verification](docs/mcp/README.md). The secret-free [MCP configuration](docs/mcp/mcp.json) can be merged into your existing plugin package. After deployment, run `npm run mcp:verify` with the read-only key configured privately to check both tools against live data.
+
 ## API guide
 
 Your interactive API reference lives at:

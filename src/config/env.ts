@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 import { ConfigError } from "../lib/errors.js";
 
 const booleanish = z.union([z.boolean(), z.string()]).transform((value, ctx) => {

@@ -29,6 +29,7 @@ import { openApiSchemas } from "./openapi/schemas.js";
 import { chatGptRoutes } from "./routes/chatgpt.js";
 import { oauthRoutes } from "./routes/oauth.js";
 import { actionRoutes, parseActionAccounts } from "./routes/actions.js";
+import { mcpRoutes } from "./mcp/routes.js";
 import type { XOAuthService } from "./services/xOAuthService.js";
 
 export interface BuildServerOptions {
@@ -131,8 +132,8 @@ export async function buildServer({
   await app.register(cors, {
     // Default: no browser origin is allowed. This is a server-to-server API.
     origin: corsOrigins.length > 0 ? corsOrigins : false,
-    methods: ["GET", "OPTIONS"],
-    allowedHeaders: ["authorization", "content-type"],
+    methods: ["GET", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: ["authorization", "content-type", "mcp-protocol-version", "mcp-session-id"],
     maxAge: 600,
   });
 
@@ -327,6 +328,20 @@ export async function buildServer({
     chatGptActionRateLimitHook &&
     env.PUBLIC_API_BASE_URL
   ) {
+    await app.register(mcpRoutes, {
+      connectionService,
+      baseUrl: env.PUBLIC_API_BASE_URL,
+      origins: [new URL(env.PUBLIC_API_BASE_URL).origin, ...corsOrigins],
+      authHook: createAuthHook({ store: chatGptActionKeyStore, requireHttps: env.REQUIRE_HTTPS }),
+      rateLimitHook: app.rateLimit({
+        max: env.CHATGPT_ACTION_RATE_LIMIT_MAX,
+        timeWindow: env.RATE_LIMIT_WINDOW_SECONDS * 1000,
+        keyGenerator: (request) =>
+          `mcp:${rateLimitKey(chatGptActionKeyStore, request.headers.authorization, request.ip)}`,
+        errorResponseBuilder: () =>
+          new ApiError(429, "rate_limited", "MCP request rate limit exceeded. Retry shortly."),
+      }) as onRequestHookHandler,
+    });
     await app.register(actionRoutes, {
       baseUrl: env.PUBLIC_API_BASE_URL.replace(/\/$/, ""),
       accountAliases: parseActionAccounts(env.CHATGPT_ACTION_ACCOUNTS),

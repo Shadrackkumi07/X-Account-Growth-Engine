@@ -14,3 +14,9 @@ data/*.tmp
 .DS_Store
 .idea/
 .vscode/
+/.agents/skills/transitions-dev
+/.agents/skills/transitions-polish
+/agent/skills/transitions-dev
+/agent
+.claude/skills/transitions-dev
+.claude/skills/transitions-polish

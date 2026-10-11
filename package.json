@@ -16,7 +16,8 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "lint": "prettier --check .",
-    "keygen": "node scripts/generate-api-key.mjs"
+    "keygen": "node scripts/generate-api-key.mjs",
+    "mcp:verify": "node scripts/verify-mcp.mjs"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",
@@ -24,11 +25,14 @@
     "@fastify/rate-limit": "^10.1.1",
     "@fastify/swagger": "^9.2.0",
     "@fastify/swagger-ui": "^6.1.1",
+    "@modelcontextprotocol/node": "^2.1.1",
+    "@modelcontextprotocol/server": "^2.3.1",
     "fastify": "^5.1.0",
     "pg": "^8.16.3",
-    "zod": "^3.23.8"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@modelcontextprotocol/client": "^2.3.1",
     "@types/node": "^22.9.0",
     "@types/pg": "^8.15.5",
     "prettier": "^3.3.3",
